@@ -1,0 +1,97 @@
+text,aspect,polarity,lang
+"All the appetizers and salads were fabulous, the steak was mouth watering and the pasta was delicious!!!",appetizers,pos,en
+"All the appetizers and salads were fabulous, the steak was mouth watering and the pasta was delicious!!!",salads,pos,en
+"All the appetizers and salads were fabulous, the steak was mouth watering and the pasta was delicious!!!",steak,pos,en
+"All the appetizers and salads were fabulous, the steak was mouth watering and the pasta was delicious!!!",pasta,pos,en
+And really large portions.,portions,pos,en
+The sweet lassi was excellent as was the lamb chettinad and the garlic naan but the rasamalai was forgettable.,sweet lassi,pos,en
+The sweet lassi was excellent as was the lamb chettinad and the garlic naan but the rasamalai was forgettable.,lamb chettinad,pos,en
+The sweet lassi was excellent as was the lamb chettinad and the garlic naan but the rasamalai was forgettable.,garlic naan,pos,en
+The sweet lassi was excellent as was the lamb chettinad and the garlic naan but the rasamalai was forgettable.,rasamalai,neg,en
+Service was quick.,Service,pos,en
+"Oh, don't even let me start with how expensive the bills were!",bills,neg,en
+Service is top notch.,Service,pos,en
+The best thing I tasted were the lambc hops.,lambc hops,pos,en
+"Even though its good seafood, the prices are too high.",seafood,pos,en
+"Even though its good seafood, the prices are too high.",prices,neg,en
+"In addition, the food is very good and the prices are reasonable.",food,pos,en
+"In addition, the food is very good and the prices are reasonable.",prices,pos,en
+The food is great and authentic.,food,pos,en
+"I recommend the garlic shrimp, okra (bindi), and anything with lamb.",garlic shrimp,pos,en
+"I recommend the garlic shrimp, okra (bindi), and anything with lamb.",okra (bindi),pos,en
+"I recommend the garlic shrimp, okra (bindi), and anything with lamb.",lamb,pos,en
+"The menu was impressive with selections ranging from a burger, to steak, to escargot.",menu,pos,en
+"The menu was impressive with selections ranging from a burger, to steak, to escargot.",burger,neutral,en
+"The menu was impressive with selections ranging from a burger, to steak, to escargot.",steak,neutral,en
+"The menu was impressive with selections ranging from a burger, to steak, to escargot.",escargot,neutral,en
+very good breads as well.,breads,pos,en
+"Anyway, the food is good, the price is right and they have a decent wine list.",food,pos,en
+"Anyway, the food is good, the price is right and they have a decent wine list.",price,pos,en
+"Anyway, the food is good, the price is right and they have a decent wine list.",wine list,pos,en
+The food was lousy -too sweet or too salty and the portions tiny.,food,neg,en
+The food was lousy -too sweet or too salty and the portions tiny.,portions,neg,en
+But the coconut rice was good.,coconut rice,pos,en
+And the Tom Kha soup was pathetic.,Tom Kha soup,neg,en
+The food now is inconsistent.,food,neg,en
+"Try the crunchy tuna, it is to die for.",crunchy tuna,pos,en
+Reasonable prices.,prices,pos,en
+Add to that great service and great food at a reasonable price and you have yourself the beginning of a great evening.,service,pos,en
+Add to that great service and great food at a reasonable price and you have yourself the beginning of a great evening.,food,pos,en
+Add to that great service and great food at a reasonable price and you have yourself the beginning of a great evening.,price,pos,en
+"Unfortunately, the food was NOT something to get worked up about.",food,neg,en
+The food is great and reasonably priced.,food,pos,en
+The food is great and reasonably priced.,priced,pos,en
+"Their calzones are horrific, bad, vomit-inducing, YUCK.",calzones,neg,en
+"A few tips: skip the turnip cake, roast pork buns and egg custards.",turnip cake,neg,en
+"A few tips: skip the turnip cake, roast pork buns and egg custards.",roast pork buns,neg,en
+"A few tips: skip the turnip cake, roast pork buns and egg custards.",egg custards,neg,en
+The bagels are fabulous.,bagels,pos,en
+"While the ambiance and atmosphere were great, the food and service could have been a lot better.",ambiance,pos,en
+"While the ambiance and atmosphere were great, the food and service could have been a lot better.",atmosphere,pos,en
+"While the ambiance and atmosphere were great, the food and service could have been a lot better.",food,neg,en
+"While the ambiance and atmosphere were great, the food and service could have been a lot better.",service,neg,en
+"Our waitress was sweet and accomodating, not overbearing.",waitress,pos,en
+"My goodness, everything from the fish to the rice to the seaweed was absolutely amazing.",fish,pos,en
+"My goodness, everything from the fish to the rice to the seaweed was absolutely amazing.",rice,pos,en
+"My goodness, everything from the fish to the rice to the seaweed was absolutely amazing.",seaweed,pos,en
+"Good spreads, great beverage selections and bagels really tasty.",spreads,pos,en
+"Good spreads, great beverage selections and bagels really tasty.",beverage selections,pos,en
+"Good spreads, great beverage selections and bagels really tasty.",bagels,pos,en
+The food options rule.,food options,pos,en
+Consistently good Japanese Tapas.,Japanese Tapas,pos,en
+The sushi was awful!,sushi,neg,en
+The food was great.,food,pos,en
+With the theater 2 blocks away we had a delicious meal in a beautiful room.,meal,pos,en
+With the theater 2 blocks away we had a delicious meal in a beautiful room.,room,pos,en
+I love the fact that the pizza tastes so good and is so cheap.,pizza,pos,en
+"Service was prompt, friendly and great.",Service,pos,en
+"I haven't eat a lamb chop as delicious as that, the salads are really nice dressed with lemon and extra virgnin olive oil.",lamb chop,pos,en
+"I haven't eat a lamb chop as delicious as that, the salads are really nice dressed with lemon and extra virgnin olive oil.",salads,pos,en
+Drawbacks: service is slow and they don't toast!,service,neg,en
+The prices were fantastic.,prices,pos,en
+"The food is terrible and overall, I would have to say avoid at all costs.",food,neg,en
+The food is prepared quickly and efficiently.,food,pos,en
+"The food is fresh, delicious, and reasonably priced.",food,pos,en
+"The food is fresh, delicious, and reasonably priced.",priced,pos,en
+"As we were leaving, the couple standing by the door said to another waiter, we're not in a hurry.",waiter,neutral,en
+The outdoor atmosphere of sitting on the sidewalk watching the world go by 50 feet away on 6th avenue on a cool evening was wonderful.,outdoor atmosphere,pos,en
+"A large is $20, and toppings are about $3 each.",toppings,neutral,en
+The spicy tuna and salmon are the best we've ever had.,spicy tuna,pos,en
+The spicy tuna and salmon are the best we've ever had.,salmon,pos,en
+"The food was very good, a great deal, and the place its self was great.",food,pos,en
+"The food was very good, a great deal, and the place its self was great.",place,pos,en
+The food is usually good but it certainly isn't a relaxing place to go.,food,pos,en
+The food is usually good but it certainly isn't a relaxing place to go.,place,neg,en
+"After dinner, take your date to the HUGE dance floor, probably one of the biggest you'll see in NY.",dinner,neutral,en
+"After dinner, take your date to the HUGE dance floor, probably one of the biggest you'll see in NY.",dance floor,pos,en
+The server was really cool and served us our food and drinks with a smile.,server,pos,en
+The server was really cool and served us our food and drinks with a smile.,served,pos,en
+The server was really cool and served us our food and drinks with a smile.,food,neutral,en
+The server was really cool and served us our food and drinks with a smile.,drinks,neutral,en
+"The dishes offered were unique, very tasty and fresh from the lamb sausages, sardines with biscuits, large whole shrimp to the amazing pistachio ice cream (the best and freshest I've ever had).",dishes,pos,en
+"The dishes offered were unique, very tasty and fresh from the lamb sausages, sardines with biscuits, large whole shrimp to the amazing pistachio ice cream (the best and freshest I've ever had).",lamb sausages,pos,en
+"The dishes offered were unique, very tasty and fresh from the lamb sausages, sardines with biscuits, large whole shrimp to the amazing pistachio ice cream (the best and freshest I've ever had).",sardines with biscuits,pos,en
+"The dishes offered were unique, very tasty and fresh from the lamb sausages, sardines with biscuits, large whole shrimp to the amazing pistachio ice cream (the best and freshest I've ever had).",large whole shrimp,pos,en
+"The dishes offered were unique, very tasty and fresh from the lamb sausages, sardines with biscuits, large whole shrimp to the amazing pistachio ice cream (the best and freshest I've ever had).",pistachio ice cream,pos,en
+Went there for an office lunch.,office lunch,neutral,en
+"We've only eaten in the restaurant once, but we have ordered many times for dinner.",dinner,neutral,en
