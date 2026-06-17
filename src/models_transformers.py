@@ -241,7 +241,7 @@ class TransformerModel:
         # Paramètres d'entraînement
         training_args = TrainingArguments(
             output_dir=os.path.join(MODELS_DIR, self.model_name.replace('/', '_')),
-            evaluation_strategy="steps" if X_val is not None else "no",
+            eval_strategy="steps" if X_val is not None else "no",
             eval_steps=50 if X_val is not None else None,
             save_strategy="steps",
             save_steps=100,
