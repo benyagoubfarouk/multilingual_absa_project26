@@ -155,11 +155,18 @@ def parse_semeval_xml(xml_path, lang="en"):
 
 def parse_rusentiment_csv(csv_path, lang="ru"):
     """Parse le dataset RuSentiment (CSV)."""
+    
+    # ✅ CORRECTION DE L'ENCODAGE RUSSE
     try:
-        df = pd.read_csv(csv_path, encoding='utf-8')
-    except Exception as e:
-        logger.error(f"Erreur lecture CSV {csv_path} : {e}")
-        return pd.DataFrame()
+        # Tentative de lecture en cp1251 (Windows) car c'est souvent l'encodage du russe
+        df = pd.read_csv(csv_path, encoding='cp1251')
+    except:
+        try:
+            # Si cp1251 échoue, on essaie utf-8
+            df = pd.read_csv(csv_path, encoding='utf-8')
+        except:
+            # En dernier recours, latin-1
+            df = pd.read_csv(csv_path, encoding='latin-1')
     
     logger.info(f"Colonnes trouvées dans RuSentiment : {df.columns.tolist()}")
     
@@ -270,15 +277,40 @@ def detect_and_prepare():
         else:
             logger.info(f"   ⏭️ Extension non reconnue : {filename}")
     
-    # ---------- Fusion ----------
+    # ---------- Fusion et Réduction (AJOUT IMPORTANT) ----------
     if all_dfs:
+        # 1. Fusion brute
         combined = pd.concat(all_dfs, ignore_index=True)
         combined_file = os.path.join(DATA_PROCESSED, "all_datasets_combined.csv")
         combined.to_csv(combined_file, index=False, encoding='utf-8')
-        logger.info(f"\n📊 Dataset combiné sauvegardé : {combined_file} ({len(combined)} lignes)")
+        logger.info(f"\n📊 Dataset combiné brut : {len(combined)} lignes")
         logger.info(f"   Distribution par langue :\n{combined['lang'].value_counts()}")
         logger.info(f"   Distribution par polarité :\n{combined['polarity'].value_counts()}")
-    
+        
+        # 2. ✅ RÉDUCTION AUTOMATIQUE À 800 PHRASES PAR LANGUE
+        logger.info("\n🔄 Réduction du dataset à 800 phrases par langue...")
+        reduced_dfs = []
+        for lang in combined['lang'].unique():
+            lang_df = combined[combined['lang'] == lang]
+            # Prendre 800 échantillons aléatoires (ou moins si pas assez)
+            sample_size = min(800, len(lang_df))
+            reduced_dfs.append(lang_df.sample(n=sample_size, random_state=42))
+        
+        final_df = pd.concat(reduced_dfs, ignore_index=True)
+        logger.info(f"   ✅ Dataset réduit : {len(final_df)} lignes (800/langue)")
+        logger.info(f"   Distribution par langue :\n{final_df['lang'].value_counts()}")
+        
+        # 3. Sauvegarder le dataset réduit AVEC LES ASPECTS (POUR L'ABSA)
+        reduced_file = os.path.join(DATA_PROCESSED, "all_datasets_reduced_with_aspects.csv")
+        final_df.to_csv(reduced_file, index=False, encoding='utf-8')
+        logger.info(f"💾 Sauvegardé (ABSA) : {reduced_file}")
+        
+        # 4. Sauvegarder une version sans colonne "aspect" (pour compatibilité SVM/Transformers classiques si besoin)
+        reduced_no_aspect = final_df.drop(columns=['aspect'])
+        reduced_no_aspect_file = os.path.join(DATA_PROCESSED, "all_datasets_reduced_no_aspect.csv")
+        reduced_no_aspect.to_csv(reduced_no_aspect_file, index=False, encoding='utf-8')
+        logger.info(f"💾 Sauvegardé (Classique) : {reduced_no_aspect_file}")
+
     logger.info("\n" + "=" * 60)
     logger.info("🎉 PRÉPARATION TERMINÉE !")
     logger.info("=" * 60)
