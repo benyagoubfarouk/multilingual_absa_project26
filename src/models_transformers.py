@@ -131,7 +131,8 @@ class TransformerModel:
         Charge les données prétraitées pour les Transformers.
         """
         if filepath is None:
-            filepath = os.path.join(DATA_PROCESSED, "all_datasets_tf_ready.csv")
+            # ✅ Utilisation du fichier réduit avec aspects
+            filepath = os.path.join(DATA_PROCESSED, "all_datasets_reduced_with_aspects.csv")
         
         logger.info(f"📂 Chargement des données : {filepath}")
         self.df = pd.read_csv(filepath)
@@ -153,7 +154,9 @@ class TransformerModel:
         
         self.has_enough_classes = True
         
-        # Préparer X et y
+        # ✅ ABSA : Fusionner texte et aspect pour les Transformers
+        self.df['text_processed'] = self.df['text_processed'] + " [ASPECT: " + self.df['aspect'] + "]"
+        
         self.X = self.df['text_processed'].tolist()
         self.y = self.df['polarity'].tolist()
         
@@ -492,64 +495,74 @@ class TransformerModel:
 # 3. FONCTIONS DE BATCH
 # ============================================================
 
-def run_transformers_for_all_languages():
+def run_transformers_for_model(model_name, lang="all"):
     """
-    Exécute les modèles Transformers pour toutes les langues.
+    Exécute UN SEUL modèle Transformer pour une langue donnée.
     """
+    logger.info("=" * 60)
+    logger.info(f"🚀 EXÉCUTION DU MODÈLE : {model_name} ({lang})")
+    logger.info("=" * 60)
+    
+    # Créer et exécuter le modèle
+    model = TransformerModel(model_name=model_name, lang=lang)
+    model.load_data()
+    
+    if model.has_enough_classes:
+        # Validation croisée (5 plis)
+        model.cross_validate()
+        
+        # Entraînement final
+        model.train_final()
+        
+        # Sauvegardes
+        model.save_model()
+        model.save_results()
+        model.plot_confusion_matrix()
+        
+        # Stocker les résultats
+        key = f"{model_name}_{lang}"
+        results = {
+            'model_name': model_name,
+            'lang': lang,
+            'f1_macro': model.results['global_f1_macro'],
+            'precision_macro': model.results['global_precision_macro'],
+            'recall_macro': model.results['global_recall_macro'],
+            'n_samples': len(model.df)
+        }
+        logger.info(f"\n📍 {model_name} ({lang}) terminé !")
+        logger.info(f"   Macro-F1 : {results['f1_macro']:.4f}")
+        return results
+    else:
+        logger.warning(f"⚠️ {model_name} ignoré car une seule classe")
+        return None
+
+
+# ============================================================
+# 4. POINT D'ENTRÉE
+# ============================================================
+
+if __name__ == "__main__":
+    # Exécution par défaut pour tous les modèles (si lancé directement)
     logger.info("=" * 60)
     logger.info("🚀 EXÉCUTION DES TRANSFORMERS POUR TOUTES LES LANGUES")
     logger.info("=" * 60)
     
     results_summary = {}
     
-    # Configuration des modèles par langue
     model_configs = [
-        # XLM-RoBERTa (multilingue)
         {"model_name": "xlm-roberta-base", "lang": "all"},
-        # CamemBERT (français)
         {"model_name": "camembert-base", "lang": "fr"},
-        # RuBERT (russe)
         {"model_name": "DeepPavlov/rubert-base-cased", "lang": "ru"},
     ]
     
     for config in model_configs:
         model_name = config["model_name"]
         lang = config["lang"]
-        
-        logger.info(f"\n{'='*50}")
-        logger.info(f"📍 MODÈLE : {model_name} ({lang})")
-        logger.info(f"{'='*50}")
-        
-        # Créer et exécuter le modèle
-        model = TransformerModel(model_name=model_name, lang=lang)
-        model.load_data()
-        
-        if model.has_enough_classes:
-            # Validation croisée
-            model.cross_validate()
-            
-            # Entraînement final
-            model.train_final()
-            
-            # Sauvegardes
-            model.save_model()
-            model.save_results()
-            model.plot_confusion_matrix()
-            
-            # Stocker les résultats
+        result = run_transformers_for_model(model_name, lang)
+        if result:
             key = f"{model_name}_{lang}"
-            results_summary[key] = {
-                'model_name': model_name,
-                'lang': lang,
-                'f1_macro': model.results['global_f1_macro'],
-                'precision_macro': model.results['global_precision_macro'],
-                'recall_macro': model.results['global_recall_macro'],
-                'n_samples': len(model.df)
-            }
-        else:
-            logger.warning(f"⚠️ {model_name} ignoré car une seule classe")
+            results_summary[key] = result
     
-    # Afficher le résumé
     logger.info("\n" + "=" * 60)
     logger.info("📊 RÉSUMÉ DES PERFORMANCES DES TRANSFORMERS")
     logger.info("=" * 60)
@@ -560,14 +573,3 @@ def run_transformers_for_all_languages():
         logger.info(f"   Précision: {results['precision_macro']:.4f}")
         logger.info(f"   Rappel   : {results['recall_macro']:.4f}")
         logger.info(f"   Échantillons : {results['n_samples']}")
-    
-    return results_summary
-
-
-# ============================================================
-# 4. POINT D'ENTRÉE
-# ============================================================
-
-if __name__ == "__main__":
-    # Exécution des Transformers
-    results = run_transformers_for_all_languages()
