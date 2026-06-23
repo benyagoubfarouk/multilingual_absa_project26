@@ -174,29 +174,31 @@ def normalize_text(text, lang="en"):
 def lemmatize_text(text, lang="en"):
     """
     Lemmatisation du texte selon la langue.
-    Utilise spaCy pour l'anglais et le français, pymorphy2 pour le russe.
+    Utilise spaCy pour l'anglais et le français.
+    Pour le russe, pymorphy2 est désactivé (incompatible avec Python 3.12 sur Colab).
     """
     if not text:
         return ""
     
     if lang == "ru":
-        # Lemmatisation russe avec pymorphy2 (si disponible)
-        morph = get_pymorphy2()
-        if morph is None:
-            # Si pymorphy2 n'est pas disponible (bug Python 3.12), on retourne le texte brut
-            # Les modèles Transformers gèrent le russe très bien sans lemmatisation
-            return text
+        # ✅ SOLUTION DÉFINITIVE : On désactive la lemmatisation russe
+        # car pymorphy2 est incompatible avec Python 3.12 sur Colab.
+        # Les modèles Transformers (RuBERT) n'ont pas besoin de lemmatisation.
+        return text
         
-        words = text.split()
-        lemmatized = []
-        for word in words:
-            parsed = morph.parse(word)
-            if parsed:
-                # Prendre la forme normale (infinitif / nominatif)
-                lemmatized.append(parsed[0].normal_form)
-            else:
-                lemmatized.append(word)
-        return " ".join(lemmatized)
+        # Le code ci-dessous est maintenant inutile et ne sera jamais exécuté
+        # morph = get_pymorphy2()
+        # if morph is None:
+        #     return text
+        # words = text.split()
+        # lemmatized = []
+        # for word in words:
+        #     parsed = morph.parse(word)
+        #     if parsed:
+        #         lemmatized.append(parsed[0].normal_form)
+        #     else:
+        #         lemmatized.append(word)
+        # return " ".join(lemmatized)
     
     else:
         # Lemmatisation avec spaCy (en, fr)
