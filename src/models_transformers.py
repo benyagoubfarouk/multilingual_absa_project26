@@ -131,8 +131,8 @@ class TransformerModel:
         Charge les données prétraitées pour les Transformers.
         """
         if filepath is None:
-            # ✅ Utilisation du fichier réduit avec aspects
-            filepath = os.path.join(DATA_PROCESSED, "all_datasets_reduced_with_aspects.csv")
+            # ✅ Utilisation du fichier prétraité pour Transformers
+            filepath = os.path.join(DATA_PROCESSED, "all_datasets_tf_ready.csv")
         
         logger.info(f"📂 Chargement des données : {filepath}")
         self.df = pd.read_csv(filepath)
@@ -154,9 +154,9 @@ class TransformerModel:
         
         self.has_enough_classes = True
         
-        # ✅ ABSA : Fusionner texte et aspect pour les Transformers
-        self.df['text_processed'] = self.df['text_processed'] + " [ASPECT: " + self.df['aspect'] + "]"
-        
+        # ✅ PRÉPARATION DES DONNÉES POUR L'ABSA
+        # Le fichier tf_ready a déjà la colonne 'text_processed' avec l'aspect fusionné
+        # On ne refait PAS la fusion ici pour éviter les doublons
         self.X = self.df['text_processed'].tolist()
         self.y = self.df['polarity'].tolist()
         
