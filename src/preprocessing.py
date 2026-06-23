@@ -395,8 +395,8 @@ def test_preprocessing():
 # ============================================================
 
 if __name__ == "__main__":
-    # Test des fonctions
-    test_preprocessing()
+    # 🛑 COMMENTÉ POUR ÉVITER LA BOUCLE INFINIE SUR COLAB
+    # test_preprocessing()
     
     # Exemple de chargement et prétraitement
     logger.info("\n📂 Chargement du dataset combiné...")
