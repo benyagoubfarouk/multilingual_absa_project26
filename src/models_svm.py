@@ -23,7 +23,7 @@ logger = setup_logger(__name__)
 POLARITY_LABELS = ['Positive', 'Neutral', 'Negative']
 
 # ============================================================
-# 1. CLASSE SVM MODEL
+# 1. CLASSE SVM MODEL (Version par aspect)
 # ============================================================
 
 class SVMModel:
@@ -32,8 +32,9 @@ class SVMModel:
     Handles training, cross-validation and evaluation.
     """
     
-    def __init__(self, lang="all", svm_params=None, tfidf_params=None):
+    def __init__(self, lang="all", aspect=None, svm_params=None, tfidf_params=None):
         self.lang = lang
+        self.aspect = aspect  # Nouveau : l'aspect à entraîner
         self.svm_params = svm_params or SVM_PARAMS.copy()
         self.tfidf_params = tfidf_params or TFIDF_PARAMS.copy()
         self.pipeline = None
@@ -42,20 +43,30 @@ class SVMModel:
         self.has_enough_classes = True
         
         set_seed(RANDOM_SEED)
-        logger.info(f"🔧 Initializing SVM model for language: {lang}")
+        logger.info(f"🔧 Initializing SVM model for language: {lang}, aspect: {aspect}")
     
     def load_data(self, filepath=None):
         if filepath is None:
-            # ✅ Utilisation du fichier réduit avec aspects
-            filepath = os.path.join(DATA_PROCESSED, "all_datasets_reduced_with_aspects.csv")
+            filepath = os.path.join(DATA_PROCESSED, "all_datasets_svm_ready.csv")
         
         logger.info(f"📂 Loading data: {filepath}")
         self.df = pd.read_csv(filepath)
         
+        # Filtrer par langue
         if self.lang != "all":
             self.df = self.df[self.df['lang'] == self.lang]
         
-        logger.info(f"   ✅ {len(self.df)} rows loaded for {self.lang}")
+        # ✅ NOUVEAU : Filtrer par aspect si spécifié
+        if self.aspect is not None:
+            self.df = self.df[self.df['aspect'] == self.aspect]
+        
+        logger.info(f"   ✅ {len(self.df)} rows loaded for {self.lang} - aspect: {self.aspect}")
+        
+        # ✅ Vérification : Si le DataFrame est vide, on lève une exception pour l'ignorer
+        if len(self.df) == 0:
+            logger.warning(f"⚠️ No data found for {self.lang} - aspect: {self.aspect}. Skipping...")
+            self.has_enough_classes = False
+            return self.df
         
         # Vérifier le nombre de classes
         unique_classes = self.df['polarity'].unique()
@@ -67,9 +78,6 @@ class SVMModel:
             return self.df
         
         self.has_enough_classes = True
-        
-        # ✅ ABSA : Fusionner texte et aspect pour le SVM
-        self.df['text_processed'] = self.df['text_processed'] + " [ASPECT: " + self.df['aspect'] + "]"
         
         self.X = self.df['text_processed'].tolist()
         self.y = self.df['polarity'].tolist()
@@ -121,7 +129,7 @@ class SVMModel:
     
     def cross_validate(self, X=None, y=None, n_folds=CV_FOLDS):
         if not self.has_enough_classes:
-            logger.warning(f"⚠️ Not enough classes for {self.lang}. Cross-validation ignored.")
+            logger.warning(f"⚠️ Not enough classes for {self.lang}-{self.aspect}. Cross-validation ignored.")
             return None
         
         if X is None:
@@ -186,14 +194,13 @@ class SVMModel:
             'classification_report': report,
             'confusion_matrix': cm.tolist(),
             'n_samples': len(all_true),
-            'lang': self.lang
+            'lang': self.lang,
+            'aspect': self.aspect  # ✅ Nouveau : stocker l'aspect
         }
         
-        logger.info(f"\n📊 Cross-validation results:")
+        logger.info(f"\n📊 Cross-validation results for {self.lang}-{self.aspect}:")
         logger.info(f"   Mean Macro-F1 : {np.mean([r['f1_macro'] for r in fold_results]):.4f} (±{np.std([r['f1_macro'] for r in fold_results]):.4f})")
         logger.info(f"   Global Macro-F1: {global_f1_macro:.4f}")
-        logger.info(f"   Macro Precision: {global_precision_macro:.4f}")
-        logger.info(f"   Macro Recall   : {global_recall_macro:.4f}")
         
         return self.results
     
@@ -211,7 +218,8 @@ class SVMModel:
     def save_model(self, filepath=None):
         if filepath is None:
             lang_suffix = self.lang if self.lang != "all" else "multilingual"
-            filepath = os.path.join(MODELS_DIR, f"svm_model_{lang_suffix}.pkl")
+            aspect_suffix = self.aspect if self.aspect else "all_aspects"
+            filepath = os.path.join(MODELS_DIR, f"svm_model_{lang_suffix}_{aspect_suffix}.pkl")
         
         if self.pipeline is None:
             raise ValueError("Model not trained.")
@@ -223,8 +231,9 @@ class SVMModel:
     def save_results(self, filepath=None):
         if filepath is None:
             lang_suffix = self.lang if self.lang != "all" else "multilingual"
+            aspect_suffix = self.aspect if self.aspect else "all_aspects"
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filepath = os.path.join(RESULTS_DIR, f"svm_results_{lang_suffix}_{timestamp}.json")
+            filepath = os.path.join(RESULTS_DIR, f"svm_results_{lang_suffix}_{aspect_suffix}_{timestamp}.json")
         
         save_json(self.results, filepath)
         logger.info(f"💾 Results saved: {filepath}")
@@ -248,11 +257,12 @@ class SVMModel:
         )
         ax.set_xlabel('Predictions')
         ax.set_ylabel('True Labels')
-        ax.set_title(f'Confusion Matrix - SVM ({self.lang})')
+        ax.set_title(f'Confusion Matrix - SVM ({self.lang}) - {self.aspect}')
         
         if save:
             lang_suffix = self.lang if self.lang != "all" else "multilingual"
-            filepath = os.path.join(RESULTS_DIR, f"svm_confusion_matrix_{lang_suffix}.png")
+            aspect_suffix = self.aspect if self.aspect else "all_aspects"
+            filepath = os.path.join(RESULTS_DIR, f"svm_confusion_matrix_{lang_suffix}_{aspect_suffix}.png")
             plt.savefig(filepath, dpi=300, bbox_inches='tight')
             logger.info(f"💾 Confusion matrix saved: {filepath}")
         
@@ -261,62 +271,80 @@ class SVMModel:
 
 
 # ============================================================
-# 2. FUNCTIONS DE BATCH
+# 2. FONCTION D'EXÉCUTION PAR ASPECT
 # ============================================================
 
-def run_svm_for_all_languages():
-    """Runs SVM for all languages and saves results."""
+def run_svm_for_aspect(lang, aspect):
+    """Exécute le SVM pour une langue et un aspect spécifique."""
+    logger.info(f"\n{'='*50}")
+    logger.info(f"📍 LANGUAGE: {lang} - ASPECT: {aspect}")
+    logger.info(f"{'='*50}")
+    
+    model = SVMModel(lang=lang, aspect=aspect)
+    model.load_data()
+    
+    if model.has_enough_classes:
+        model.cross_validate()
+        model.train_final()
+        model.save_model()
+        model.save_results()
+        model.plot_confusion_matrix()
+        
+        return {
+            'aspect': aspect,
+            'lang': lang,
+            'f1_macro': model.results['global_f1_macro'],
+            'precision_macro': model.results['global_precision_macro'],
+            'recall_macro': model.results['global_recall_macro'],
+            'n_samples': len(model.df)
+        }
+    else:
+        logger.warning(f"⚠️ {lang}-{aspect} ignored (only one class or no data)")
+        return None
+
+
+# ============================================================
+# 3. BOUCLE PRINCIPALE : TOUS LES ASPECTS, TOUTES LES LANGUES
+# ============================================================
+
+def run_svm_for_all_aspects():
+    """Exécute le SVM pour toutes les langues et tous les aspects."""
     logger.info("=" * 60)
-    logger.info("🚀 EXECUTING SVM FOR ALL LANGUAGES")
+    logger.info("🚀 EXECUTING SVM FOR ALL LANGUAGES AND ASPECTS")
     logger.info("=" * 60)
+    
+    # Définir les aspects à analyser
+    aspects = ["service", "qualité", "prix", "livraison", "interface"]
+    languages = ['en', 'fr', 'ru', 'all']
     
     results_summary = {}
     
-    # Languages to test
-    languages = ['en', 'fr', 'ru', 'all']
-    
     for lang in languages:
-        logger.info(f"\n{'='*50}")
-        logger.info(f"📍 PROCESSING LANGUAGE: {lang}")
-        logger.info(f"{'='*50}")
-        
-        model = SVMModel(lang=lang)
-        model.load_data()
-        
-        if model.has_enough_classes:
-            model.cross_validate()
-            model.train_final()
-            model.save_model()
-            model.save_results()
-            model.plot_confusion_matrix()
-            
-            results_summary[lang] = {
-                'f1_macro': model.results['global_f1_macro'],
-                'precision_macro': model.results['global_precision_macro'],
-                'recall_macro': model.results['global_recall_macro'],
-                'n_samples': len(model.df)
-            }
-        else:
-            logger.warning(f"⚠️ {lang} ignored (only one class)")
+        for aspect in aspects:
+            result = run_svm_for_aspect(lang, aspect)
+            if result:
+                key = f"{lang}_{aspect}"
+                results_summary[key] = result
     
+    # Afficher un résumé
     logger.info("\n" + "=" * 60)
-    logger.info("📊 PERFORMANCE SUMMARY")
+    logger.info("📊 PERFORMANCE SUMMARY (BY ASPECT)")
     logger.info("=" * 60)
     
-    for lang, results in results_summary.items():
-        lang_display = lang.upper() if lang != "all" else "MULTILINGUAL"
-        logger.info(f"\n📍 {lang_display}:")
-        logger.info(f"   Macro-F1 : {results['f1_macro']:.4f}")
-        logger.info(f"   Precision: {results['precision_macro']:.4f}")
-        logger.info(f"   Recall   : {results['recall_macro']:.4f}")
-        logger.info(f"   Samples  : {results['n_samples']}")
+    # Convertir en DataFrame pour un affichage plus lisible
+    try:
+        import pandas as pd
+        summary_df = pd.DataFrame(results_summary).T
+        logger.info(f"\n{summary_df.to_string()}")
+    except:
+        logger.info(f"\n{results_summary}")
     
     return results_summary
 
 
 # ============================================================
-# 3. POINT D'ENTRÉE
+# 4. POINT D'ENTRÉE
 # ============================================================
 
 if __name__ == "__main__":
-    results = run_svm_for_all_languages()
+    results = run_svm_for_all_aspects()

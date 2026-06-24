@@ -31,13 +31,11 @@ for d in [DATA_RAW, DATA_PROCESSED, DATA_AUGMENTED,
           FIGURES_DIR, MATRICES_DIR, REPORTS_DIR]:
     os.makedirs(d, exist_ok=True)
 
-
 # ============================================================
 # 2. REPRODUCTIBILITÉ
 # ============================================================
 
 RANDOM_SEED = 42
-
 
 # ============================================================
 # 3. LANGUES ET CLASSES
@@ -52,7 +50,6 @@ POLARITY_MAPPING = {
     "neutral": 1,  # Neutre
     "pos": 2       # Positif
 }
-# Inversion pour affichage
 POLARITY_NAMES = {v: k for k, v in POLARITY_MAPPING.items()}
 
 # Classes d'émotions (5 classes - modèle de Plutchik)
@@ -65,14 +62,13 @@ EMOTION_MAPPING = {
     "tristesse": 4
 }
 
-
 # ============================================================
 # 4. HYPERPARAMÈTRES SVM
 # ============================================================
 
 SVM_PARAMS = {
     "C": 1.0,
-    "kernel": "linear",  # ← À GARDER car on utilise SVC maintenant
+    "kernel": "linear",
     "class_weight": "balanced",
     "random_state": RANDOM_SEED,
     "max_iter": 10000
@@ -82,9 +78,8 @@ TFIDF_PARAMS = {
     "ngram_range": (1, 2),
     "max_features": 50000,
     "min_df": 2,
-    "stop_words": None  # On gère nous-mêmes les stopwords
+    "stop_words": None
 }
-
 
 # ============================================================
 # 5. HYPERPARAMÈTRES TRANSFORMERS
@@ -93,10 +88,10 @@ TFIDF_PARAMS = {
 TRANSFORMERS_PARAMS = {
     "xlm-roberta-base": {
         "model_name": "xlm-roberta-base",
-        "num_labels": 3,  # 3 classes de polarité
+        "num_labels": 3,
         "learning_rate": 2e-5,
         "batch_size": 16,
-        "epochs": 3,
+        "epochs": 3,           # On garde 3 époques (dataset petit -> apprentissage rapide)
         "max_length": 128,
         "warmup_steps": 0.1,
         "weight_decay": 0.01
@@ -123,16 +118,14 @@ TRANSFORMERS_PARAMS = {
     }
 }
 
-# Modèles pour la détection des émotions (5 classes)
 EMOTION_MODEL_PARAMS = {
-    "model_name": "camembert-base",  # On utilise CamemBERT pour les émotions
-    "num_labels": 5,  # 5 classes d'émotions
+    "model_name": "camembert-base",
+    "num_labels": 5,
     "learning_rate": 2e-5,
     "batch_size": 16,
     "epochs": 3,
     "max_length": 128
 }
-
 
 # ============================================================
 # 6. VALIDATION CROISÉE
@@ -143,18 +136,16 @@ TRAIN_SPLIT = 0.7
 VAL_SPLIT = 0.15
 TEST_SPLIT = 0.15
 
-
 # ============================================================
 # 7. AUGMENTATION DES DONNÉES
 # ============================================================
 
 AUGMENTATION_PARAMS = {
-    "synonym_prob": 0.3,           # Probabilité de remplacer un mot par un synonyme
-    "target_class": "neutral",      # Classe cible pour l'augmentation
-    "max_augment_per_sample": 3,    # Nombre max de variantes par texte
-    "augment_factor": 2             # Facteur d'augmentation (x2 pour équilibrer)
+    "synonym_prob": 0.3,
+    "target_class": "neutral",
+    "max_augment_per_sample": 3,
+    "augment_factor": 2
 }
-
 
 # ============================================================
 # 8. LOGGING
@@ -163,25 +154,19 @@ AUGMENTATION_PARAMS = {
 LOG_LEVEL = "INFO"
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-
 # ============================================================
-# 9. FICHIERS D'ENTRÉE (pour prepare_data.py)
+# 9. FICHIERS D'ENTRÉE (AJOUT IMPORTANT)
 # ============================================================
 
 # Mapping des fichiers bruts vers les langues
 RAW_FILES_MAPPING = {
-    "en": [
-        "Laptops_Train.xml",
-        "SemEval.xml"
-    ],
-    "fr": [
-        "ABSA16FR_Restaurants_TestA.xml"
-    ],
-    "ru": [
-        "rusentiment_random_posts.csv"
-    ]
+    "en": ["Laptops_Train.xml", "SemEval.xml"],
+    "fr": ["ABSA16FR_Restaurants_TestA.xml"],
+    "ru": ["rusentiment_random_posts.csv"]
 }
 
+# ✅ NOUVEAU : Chemin vers le dataset réduit avec aspects
+DATA_REDUCED_WITH_ASPECTS = os.path.join(DATA_PROCESSED, "all_datasets_reduced_with_aspects.csv")
 
 # ============================================================
 # 10. INFORMATIONS SUR LE PROJET
@@ -192,13 +177,11 @@ PROJECT_VERSION = "1.0.0"
 AUTHOR = "Votre Nom"
 DESCRIPTION = "Analyse de tonalité multilingue (FR, EN, RU) avec ABSA et détection d'émotions"
 
-
 # ============================================================
-# 11. FONCTION UTILITAIRE POUR AFFICHER LA CONFIGURATION
+# 11. FONCTION UTILITAIRE
 # ============================================================
 
 def print_config():
-    """Affiche un résumé de la configuration."""
     print("=" * 60)
     print(f"📁 Projet : {PROJECT_NAME}")
     print(f"📌 Version : {PROJECT_VERSION}")
@@ -207,6 +190,7 @@ def print_config():
     print(f"   Base      : {BASE_DIR}")
     print(f"   Raw       : {DATA_RAW}")
     print(f"   Processed : {DATA_PROCESSED}")
+    print(f"   Réduit    : {DATA_REDUCED_WITH_ASPECTS}")
     print(f"   Models    : {MODELS_DIR}")
     print(f"   Results   : {RESULTS_DIR}")
     print(f"   Logs      : {LOGS_DIR}")
@@ -216,11 +200,6 @@ def print_config():
     print(f"\n🔄 Validation croisée : {CV_FOLDS} folds")
     print(f"🎲 Seed : {RANDOM_SEED}")
     print("\n" + "=" * 60)
-
-
-# ============================================================
-# 12. POINT D'ENTRÉE POUR TEST
-# ============================================================
 
 if __name__ == "__main__":
     print_config()

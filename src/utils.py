@@ -6,7 +6,7 @@ import logging
 import json
 import os
 from pathlib import Path
-from src.config import RANDOM_SEED, LOGS_DIR
+from config import RANDOM_SEED, LOGS_DIR  # ✅ Plus de 'src.'
 
 def set_seed(seed=RANDOM_SEED):
     """Fixer toutes les graines aléatoires pour la reproductibilité"""
