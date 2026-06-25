@@ -1,10 +1,16 @@
-# run_xlmr.py
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 
-from models_transformers import run_transformers_for_model
+# ✅ Ajout du chemin ABSOLU vers le dossier src/
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_path = os.path.join(current_dir, "src")
+
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+# ✅ Maintenant, l'éditeur et Python trouveront le module sans erreur
+from src.models_transformers import run_xlmr
 
 if __name__ == "__main__":
-    print("🚀 Lancement de XLM-RoBERTa sur le dataset réduit (5 plis)...")
-    run_transformers_for_model("xlm-roberta-base", lang="all")
+    print("🚀 Lancement de XLM-RoBERTa (multilingue)...")
+    run_xlmr()
